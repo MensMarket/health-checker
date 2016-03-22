@@ -74,10 +74,9 @@
         }
 
         if (obj.status == 'end') {
-            serviceLine.attr('class', null).addClass('success');
-
             var messages = [];
             var lastCheckDate = new Date();
+            var failCount = 0;
             lastCheckDate.setTime(obj.timestamp);
 
             $('.last-check', serviceLine).text(lastCheckDate.toLocaleString());
@@ -86,9 +85,13 @@
             $(obj.results).each(function () {
                 $('.messages', serviceLine).append('<p>' + this.name + ': ' + (this.status == 1 ? 'OK' : 'FAIL') + '</p>')
                 messages = messages.concat(this.message);
+
+                if (this.status == 0) {
+                    failCount ++;
+                }
             });
 
-//            $('.messages').html(messages.join('<br>'));
+            serviceLine.attr('class', null).addClass(failCount > 0 ? 'error' : 'success');
         }
     }
 

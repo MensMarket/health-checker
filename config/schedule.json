@@ -1,0 +1,22 @@
+{
+  "Frontend": {
+    "slug": "frontend",
+    "rules": {
+      "second": [0, 10, 20, 30, 40, 50]
+    }
+  },
+
+  "Services": {
+    "slug": "services",
+    "rules": {
+      "second": [0, 10, 20, 30, 40, 50]
+    }
+  },
+
+  "Solr": {
+    "slug": "solr",
+    "rules": {
+      "second": [0, 30]
+    }
+  }
+}

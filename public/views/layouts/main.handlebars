@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Example App</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <style>
+        body {
+            font-size: 19px;
+            padding: 20px;
+        }
+
+        .table {
+            vertical-align: middle;
+        }
+
+        .table > thead > tr > th.status,
+        .table > tbody > tr > td.status {
+            text-align: center;
+        }
+
+        .table > tbody > tr > td {
+            vertical-align: middle;
+        }
+
+        tr .status i {
+            display: none;
+        }
+
+        tr.active .glyphicon-time {
+            display: inline-block;;
+        }
+
+        tr.success .glyphicon-ok {
+            display: inline-block;
+        }
+
+        .table > tbody > tr.success > td {
+            color: #3c763d
+        }
+
+        tr.error .glyphicon-exclamation-sign {
+            display: inline-block;
+        }
+
+        .table > tbody > tr.error > td {
+            color: #a94442;
+            animation: blinker 1s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                background-color: #f2dede;
+            }
+        }
+    </style>
+</head>
+<body>
+
+{{{body}}}
+
+<script src="http://code.jquery.com/jquery-1.12.2.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+    var socket = io();
+
+    function onCheckMessage(obj) {
+        var serviceName = obj.service;
+        var serviceLine = $('*[data-service="' + obj.slug + '"]');
+
+        if (obj.status == 'start') {
+            serviceLine.attr('class', null).addClass('active');
+        }
+
+        if (obj.status == 'end') {
+            serviceLine.attr('class', null).addClass('success');
+
+            var messages = [];
+            var lastCheckDate = new Date();
+            lastCheckDate.setTime(obj.timestamp);
+
+            $('.last-check', serviceLine).text(lastCheckDate.toLocaleString());
+            $('.messages', serviceLine).html('');
+
+            $(obj.results).each(function () {
+                $('.messages', serviceLine).append('<p>' + this.name + ': ' + (this.status == 1 ? 'OK' : 'FAIL') + '</p>')
+                messages = messages.concat(this.message);
+            });
+
+//            $('.messages').html(messages.join('<br>'));
+        }
+    }
+
+    socket.on('check', onCheckMessage);
+</script>
+</body>
+</html>

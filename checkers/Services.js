@@ -3,7 +3,7 @@
  */
 module.exports = services = (function () {
 
-    var q = require('Q');
+    var q = require('q');
     var request = require('request');
 
     var EC2 = require('../utils/EC2');

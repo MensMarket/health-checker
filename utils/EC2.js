@@ -2,7 +2,7 @@
  * Created by lmiranda on 3/15/16.
  */
 var AWS = require('aws-sdk');
-var q = require('Q');
+var q = require('q');
 
 function hasTags(instanceTags, tags) {
     var tagsFound = 0;

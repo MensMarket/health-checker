@@ -1,7 +1,7 @@
 /**
  * Created by lmiranda on 3/15/16.
  */
-module.exports = (function () {
+module.exports = solr = (function () {
 
     var q = require('q');
     var request = require('request');
@@ -34,36 +34,41 @@ module.exports = (function () {
 
     function checkInstance(instance) {
         var defer = q.defer();
-        var coreDataUrl = 'http://' + instance.PublicIpAddress + '/solr/admin/cores?wt=json';
+        var coreDataUrl = 'http://' + instance.PublicIpAddress + ':8983/solr/admin/cores?wt=json';
         var messages = [];
         var failCount = 0;
 
-
         request(coreDataUrl, function (error, response, body) {
             if (!error && response.statusCode == 200) {
-                var data = JSON.parse(body);
-                var cores = data.status;
+                try {
+                    var data = JSON.parse(body);
+                    var cores = data.status;
 
-                for (var core in cores) {
-                    var status = cores[core];
-                    var lastModifiedDate = new Date(status.index.lastModified);
-                    var diffDate = new Date();
+                    for (var core in cores) {
+                        var status = cores[core];
+                        var lastModifiedDate = new Date(status.index.lastModified);
+                        var diffDate = new Date();
 
-                    diffDate.setMinutes(diffDate.getTime() - 15);
+                        diffDate.setMinutes(diffDate.getTime() - 15);
 
-                    if (lastModifiedDate.getTime() < diffDate.getTime()) {
-                        messages.push('core ' + core + ' is out of date');
-                        failCount++;
-                    } else {
-                        messages.push('core ' + core + ' last index: ' + lastModifiedDate.toLocaleString());
+                        if (lastModifiedDate.getTime() < diffDate.getTime()) {
+                            messages.push('core ' + core + ' is out of date');
+                            failCount++;
+                        } else {
+                            messages.push('core ' + core + ' last index: ' + lastModifiedDate.toLocaleString());
+                        }
                     }
-                }
 
-                if (failCount > 0) {
-                    defer.reject(messages);
-                } else {
-                    defer.resolve(messages)
+                    if (failCount > 0) {
+                        defer.reject(messages);
+                    } else {
+                        defer.resolve(messages)
+                    }
+                } catch(e) {
+                    defer.reject(e.message);
                 }
+            } else {
+                defer.reject(error);
             }
         });
 
@@ -74,6 +79,8 @@ module.exports = (function () {
         var defer = q.defer();
 
         getSolrInstances().then(function (instances) {
+            console.info(instances);
+
             if (!instances.length) {
                 return;
             }
